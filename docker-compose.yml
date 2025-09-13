@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  # 資料庫服務
+  mysql_db:
+    image: mysql:8.0
+    container_name: my-ecommerce-db
+    restart: always
+    environment:
+      # 從 .env 檔案讀取變數
+      MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD}'
+      MYSQL_DATABASE: '${MYSQL_DATABASE}'
+      MYSQL_USER: '${MYSQL_USER}'
+      MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
+    ports:
+      - '3307:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # 後端 API 服務
+  api:
+    build: .
+    container_name: my-ecommerce-api
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mysql_db
+    env_file:
+      - .env # 明確地告訴這個服務，去載入 .env 檔案的所有變數
+
+volumes:
+  mysql_data:
