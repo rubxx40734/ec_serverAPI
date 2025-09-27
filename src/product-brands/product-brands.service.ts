@@ -14,8 +14,8 @@ export class ProductBrandsService {
 
   // 新增品牌
   async create(createProductBrandDto: CreateProductBrandDto): Promise<Brand> {
+    console.log('Brand,', Brand);
     const newBrand = this.brandRepository.create(createProductBrandDto);
-    console.log('service 新增', newBrand);
     return this.brandRepository.save(newBrand);
   }
   // 查詢所有品牌
@@ -24,9 +24,11 @@ export class ProductBrandsService {
   }
   // 查詢單一品牌 by id
   async findOneById(id: string): Promise<Brand> {
-    const brand = await this.brandRepository.findOne({ where: { id } });
+    const brand = await this.brandRepository.findOneBy({ id });
     if (!brand) {
-      throw new NotFoundException(`Brand with id ${id} not found`);
+      throw new NotFoundException(`${id} 查無資料`, {
+        description: '找不到該品牌，請確認 id 是否正確',
+      });
     }
     return brand;
   }
