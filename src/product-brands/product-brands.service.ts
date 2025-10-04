@@ -14,9 +14,19 @@ export class ProductBrandsService {
 
   // 新增品牌
   async create(createProductBrandDto: CreateProductBrandDto): Promise<Brand> {
-    console.log('Brand,', Brand);
-    const newBrand = this.brandRepository.create(createProductBrandDto);
-    return this.brandRepository.save(newBrand);
+    console.log('createProductBrandDto', createProductBrandDto);
+    try {
+      const newBrand = this.brandRepository.create(createProductBrandDto);
+      return await this.brandRepository.save(newBrand);
+    } catch (error) {
+      console.dir(error, { depth: null, colors: true });
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new NotFoundException('重複資料', {
+          description: '品牌名稱或 slug 已存在，請使用其他名稱',
+        });
+      }
+      throw error;
+    }
   }
   // 查詢所有品牌
   findAll(): Promise<Brand[]> {
