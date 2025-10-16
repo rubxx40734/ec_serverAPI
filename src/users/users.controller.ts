@@ -7,8 +7,10 @@ import {
   Param,
   Delete,
   UseInterceptors,
+  UseGuards,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport'; // 2. 引入 AuthGuard
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -37,6 +39,8 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(AuthGuard('jwt')) // 3. 使用 AuthGuard 來保護這個路由
+  @ApiOperation({ summary: '取得所有使用者 (需要身份驗證)' })
   findAll() {
     return this.usersService.findAll();
   }
