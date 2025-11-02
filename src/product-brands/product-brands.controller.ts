@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   UseInterceptors,
   ClassSerializerInterceptor,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductBrandsService } from './product-brands.service';
 import { CreateProductBrandDto } from './dto/create-product-brand.dto';
@@ -16,6 +17,10 @@ import { UpdateProductBrandDto } from './dto/update-product-brand.dto';
 import { ApiresponseDto } from '../common/dto/api-response.dto';
 import { Brand } from './entities/product-brand.entity';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRole } from 'src/users/entities/user.entity';
 
 @ApiTags('品牌管理')
 @Controller('brands')
@@ -25,6 +30,8 @@ export class ProductBrandsController {
 
   @Post()
   @ApiOperation({ summary: '建立品牌' })
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN) // 7. 只有 ADMIN 角色可以建立品牌
   @ApiOkResponse({
     description: '品牌建立成功',
     type: ApiresponseDto,
@@ -74,6 +81,8 @@ export class ProductBrandsController {
 
   @Patch(':id')
   @ApiOperation({ summary: '更新品牌資料' })
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN) // 8. 只有 ADMIN 角色可以更新品牌資料
   @ApiOkResponse({
     description: '品牌資料更新成功',
     type: ApiresponseDto,
@@ -92,6 +101,8 @@ export class ProductBrandsController {
 
   @Delete(':id')
   @ApiOperation({ summary: '刪除品牌' })
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN) // 9. 只有 ADMIN 角色可以刪除品牌
   @ApiOkResponse({
     description: '品牌刪除成功',
     type: ApiresponseDto,

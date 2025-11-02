@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -23,10 +23,13 @@ export class UsersService {
       createUserDto.password,
       saltRounds,
     );
+    // 計算目前使用者數量
+    const userCount = await this.usersRepository.count();
 
     const userToCreate = {
       ...createUserDto,
       password: hashedPassword,
+      role: userCount === 0 ? UserRole.ADMIN : UserRole.USER, // 如果是第一個使用者，設為 ADMIN
     };
 
     const newUserEntity = this.usersRepository.create(userToCreate);
@@ -66,11 +69,17 @@ export class UsersService {
     }
     return user;
   }
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.findOneById(id);
+
+    // 2. 將 DTO 中的資料（只有 name）合併到從資料庫撈出來的 user 物件上
+    Object.assign(user, updateUserDto);
+    return this.usersRepository.save(user);
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} user`;
+  async remove(id: string): Promise<void> {
+    const user = await this.findOneById(id);
+    // 2. .remove() 會回傳一個 Promise<void>
+    await this.usersRepository.remove(user);
   }
 }
