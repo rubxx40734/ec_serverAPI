@@ -40,8 +40,8 @@ import { AuthModule } from 'src/auth/auth.module';
           return {
             ...baseConfig,
             socketPath: `/cloudsql/${configService.get<string>('DB_CONNECTION_NAME')}`,
-            ssl: {
-              rejectUnauthorized: false,
+            extra: {
+              ssl: false,
             },
           };
         } else {
@@ -50,6 +50,7 @@ import { AuthModule } from 'src/auth/auth.module';
             ...baseConfig,
             host: configService.get<string>('DB_HOST'),
             port: configService.get<number>('DB_PORT'),
+            ssl: false,
           };
         }
       },
