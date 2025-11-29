@@ -40,7 +40,7 @@ export class AuthService {
   /**
    * 根據驗證成功的使用者資訊，簽發 JWT
    * @param user 已經過驗證的使用者物件
-   * @returns 包含 access_token 的物件
+   * @returns  純粹的 JWT Token 字串
    */
   async login(user: Omit<User, 'password'>) {
     // 建立 JWT 的 payload (負載)，這是要放進 token 裡的資訊
@@ -50,8 +50,6 @@ export class AuthService {
       role: user.role,
     };
 
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    return this.jwtService.sign(payload);
   }
 }
