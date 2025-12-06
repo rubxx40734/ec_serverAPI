@@ -10,7 +10,6 @@ import {
   UseGuards,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport'; // 2. 引入 AuthGuard
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -19,6 +18,8 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from 'src/users/entities/user.entity';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+
 ApiTags('使用者管理');
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -41,7 +42,7 @@ export class UsersController {
   }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'), RolesGuard) // 3. 使用 AuthGuard 來保護這個路由
+  @UseGuards(JwtAuthGuard, RolesGuard) // 3. 使用 AuthGuard 來保護這個路由
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: '取得所有使用者 (需要身份驗證)' })
   async findAll() {
@@ -54,7 +55,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard) // 3. 使用 AuthGuard 來保護這個路由
+  @UseGuards(JwtAuthGuard, RolesGuard) // 3. 使用 AuthGuard 來保護這個路由
   @Roles(UserRole.ADMIN)
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.findOneById(id);
@@ -66,7 +67,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     const updatedUser = await this.usersService.update(id, updateUserDto);
@@ -78,7 +79,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async remove(@Param('id') id: string) {
     await this.usersService.remove(id);

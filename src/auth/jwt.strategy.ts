@@ -30,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       const user = await this.usersService.findOneById(payload.sub);
       return user;
     } catch (error) {
-      throw new UnauthorizedException('Token 無效或使用者已不存在');
+      throw new UnauthorizedException('Token 無效或使用者已不存在!');
     }
   }
 }
